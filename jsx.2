@@ -1,0 +1,19 @@
+import React from 'react';
+import Carousel from './Carousel';
+
+const App = () => {
+  const images = [
+    'img1.jpg',
+    'img2.jpg',
+    'img3.jpg',
+  ];
+
+  return (
+    <div>
+      <h1>Image Slider</h1>
+      <Carousel images={images} autoplay={true} autoplayInterval={3000} />
+    </div>
+  );
+};
+
+export default App;
