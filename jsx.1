@@ -1,0 +1,88 @@
+import React, { useState, useEffect, useRef } from 'react';
+import PropTypes from 'prop-types';
+
+const Carousel = ({ images, autoplay = true, autoplayInterval = 3000 }) => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [touchStartX, setTouchStartX] = useState(null);
+  const [touchEndX, setTouchEndX] = useState(null);
+  const carouselRef = useRef(null);
+
+  useEffect(() => {
+    if (autoplay) {
+      const interval = setInterval(() => {
+        handleNext();
+      }, autoplayInterval);
+
+      return () => {
+        clearInterval(interval);
+      };
+    }
+  }, [autoplay, autoplayInterval]);
+
+  const handlePrev = () => {
+    setActiveIndex((prevIndex) =>
+      prevIndex === 0 ? images.length - 1 : prevIndex - 1
+    );
+  };
+
+  const handleNext = () => {
+    setActiveIndex((prevIndex) =>
+      prevIndex === images.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
+  const handleTouchStart = (e) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    setTouchEndX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX && touchEndX) {
+      if (touchEndX - touchStartX > 50) {
+        handlePrev();
+      } else if (touchStartX - touchEndX > 50) {
+        handleNext();
+      }
+    }
+    setTouchStartX(null);
+    setTouchEndX(null);
+  };
+
+  const slideStyle = {
+    transform: `translateX(-${activeIndex * 100}%)`,
+    transition: 'transform 0.5s ease-in-out',
+  };
+
+  return (
+    <div
+      className="carousel"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      ref={carouselRef}
+    >
+      <div className="carousel-slides" style={slideStyle}>
+        {images.map((image, index) => (
+          <img src={image} alt={`Slide ${index + 1}`} key={index} />
+        ))}
+      </div>
+      <button className="carousel-prev" onClick={handlePrev}>
+        Prev
+      </button>
+      <button className="carousel-next" onClick={handleNext}>
+        Next
+      </button>
+    </div>
+  );
+};
+
+Carousel.propTypes = {
+  images: PropTypes.arrayOf(PropTypes.string).isRequired,
+  autoplay: PropTypes.bool,
+  autoplayInterval: PropTypes.number,
+};
+
+export default Carousel;
